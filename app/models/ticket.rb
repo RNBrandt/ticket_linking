@@ -12,6 +12,8 @@ class Ticket < ActiveRecord::Base
     related_ticket_array(tickets).map { |id| Ticket.find(id) }
   end
 
+  private
+
   def related_ticket_array(tickets)
     tree = searchable_hash(tickets)
     search_value = self.id
@@ -19,7 +21,7 @@ class Ticket < ActiveRecord::Base
     stack = []
     results = []
     travelled = {}
-    stack.push tree[search_value][0]
+    tree[search_value].each { |r_hash| stack.push r_hash}
     travelled[search_value] = true
     results.push search_value
     while stack.length > 0
@@ -56,22 +58,4 @@ class Ticket < ActiveRecord::Base
       }
     })
   end
-
-  def all_related_tickets
-    unique_related.map { |id| Ticket.find(id) }
-  end
-
- def unique_related
-  id_array = Ticket.pluck(:id)
-  accounted = {}
-  unique_related = []
-  id_array.each do |id|
-    if !accounted[id]
-      related = self.related_ticket_array(id)
-      related.each { |id| accounted[id] = true }
-      unique_related << related
-    end
-  end
-  unique_related
- end
 end
