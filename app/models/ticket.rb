@@ -3,6 +3,7 @@ class Ticket < ActiveRecord::Base
   belongs_to :user
   belongs_to :problem, class_name: 'Ticket'
   has_many :incidents, class_name: 'Ticket', foreign_key: :problem_id
+  has_many :other_relateds, class_name: 'Ticket', foreign_key: :problem_id
 
   def incident?
     problem_id.present?
@@ -11,8 +12,6 @@ class Ticket < ActiveRecord::Base
   def related(tickets)
     related_ticket_array(tickets).map { |id| tickets.find(id) }
   end
-
-  private
 
   def related_ticket_array(tickets)
     ticket_relation_array = relation_array(tickets)
@@ -41,7 +40,7 @@ class Ticket < ActiveRecord::Base
     searchable_relation_hash = {}
     relation_array.each do |t_hash|
       ticket_id = t_hash["id"]
-      related_hash = t_hash["incidents"]
+      related_hash = t_hash["incidents"] + t_hash['other_relateds']
       related_hash << t_hash["problem"] if t_hash['problem']
       searchable_relation_hash[ticket_id] = related_hash.uniq
     end
@@ -54,6 +53,9 @@ class Ticket < ActiveRecord::Base
         only: :id
       },
       problem: {
+        only: :id
+      },
+      other_relateds: {
         only: :id
       }
     })
