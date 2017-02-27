@@ -55,5 +55,22 @@ describe Ticket, type: :model do
         expect(clock.related tickets).to contain_exactly(tick, tock, clock)
       end
     end
+
+    context 'when tickets are connected through the #other_relateds method' do
+       let!(:mouse) { Ticket.create(other_relateds: [tick]) }
+
+      before do
+        tick.update(incidents: [tock], other_relateds: [mouse])
+        tock.update(problem: tick)
+        clock.update(problem: tick)
+      end
+
+      it 'will return arrays with all related tickets' do
+        expect(tick.related tickets).to contain_exactly(tick, tock, clock, mouse)
+        expect(tock.related tickets).to contain_exactly(tick, tock, clock, mouse)
+        expect(clock.related tickets).to contain_exactly(tick, tock, clock, mouse)
+        expect(mouse.related tickets).to contain_exactly(tick, tock, clock, mouse)
+      end
+    end
   end
 end
