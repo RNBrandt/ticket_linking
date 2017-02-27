@@ -9,13 +9,14 @@ class Ticket < ActiveRecord::Base
   end
 
   def related(tickets)
-    related_ticket_array(tickets).map { |id| Ticket.find(id) }
+    related_ticket_array(tickets).map { |id| tickets.find(id) }
   end
 
   private
 
   def related_ticket_array(tickets)
-    tree = searchable_hash(tickets)
+    ticket_relation_array = relation_array(tickets)
+    tree = searchable_relation_hash(ticket_relation_array)
     search_value = self.id
     return [search_value] if tree[search_value] == []
     stack = []
@@ -36,19 +37,18 @@ class Ticket < ActiveRecord::Base
     results
   end
 
-  def searchable_hash(tickets)
-    hash_array = relation_hash(tickets)
-    searchable_hash = {}
-    hash_array.each do |t_hash|
+  def searchable_relation_hash(relation_array)
+    searchable_relation_hash = {}
+    relation_array.each do |t_hash|
       ticket_id = t_hash["id"]
       related_hash = t_hash["incidents"]
       related_hash << t_hash["problem"] if t_hash['problem']
-      searchable_hash[ticket_id] = related_hash.uniq
+      searchable_relation_hash[ticket_id] = related_hash.uniq
     end
-    searchable_hash
+    searchable_relation_hash
   end
 
-  def relation_hash(tickets)
+  def relation_array(tickets)
     tickets.all.as_json(only: :id, include: {
       incidents: {
         only: :id
