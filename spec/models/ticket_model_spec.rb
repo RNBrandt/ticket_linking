@@ -57,11 +57,11 @@ describe Ticket, type: :model do
     end
 
     context 'when tickets are connected through the #other_relateds method' do
-       let!(:mouse) { Ticket.create(other_relateds: [tick]) }
+       let(:mouse) { Ticket.create(other_relateds: [tick]) }
 
       before do
-        tick.update(incidents: [tock], other_relateds: [mouse])
-        tock.update(problem: tick)
+        tick.update(incidents: [tock], other_relateds: [mouse, tock])
+        # tock.update(problem: tick)
         clock.update(problem: tick)
       end
 

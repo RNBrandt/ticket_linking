@@ -13,6 +13,7 @@ class Ticket < ActiveRecord::Base
   def related(tickets)
     related_ticket_array(tickets).map { |id| tickets.find(id) }
   end
+  private
 
   def related_ticket_array(tickets)
     ticket_relation_array = relation_array(tickets)
